@@ -1,5 +1,6 @@
 import random
 from threading import Lock
+import copy
 
 
 class SingletonMeta(type):
@@ -19,6 +20,8 @@ class GameOfLife(metaclass=SingletonMeta):
         self.__width = width
         self.__height = height
         self.world = self.generate_universe()
+        self.counter = 0
+        self.old_world = self.world
 
     def form_new_generation(self):
         universe = self.world
@@ -38,6 +41,7 @@ class GameOfLife(metaclass=SingletonMeta):
                     new_world[i][j] = 1
                     continue
                 new_world[i][j] = 0
+        self.old_world = copy.deepcopy(self.world)
         self.world = new_world
 
     def generate_universe(self):
@@ -46,10 +50,18 @@ class GameOfLife(metaclass=SingletonMeta):
     @staticmethod
     def __get_near(universe, pos, system=None):
         if system is None:
-            system = ((-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1))
+            system = (  (-1, -1),
+                        (-1, 0),
+                        (-1, 1),
+                        (0, -1),
+                        (0, 1),
+                        (1, -1),
+                        (1, 0),
+                        (1, 1))
 
         count = 0
         for i in system:
-            if universe[(pos[0] + i[0]) % len(universe)][(pos[1] + i[1]) % len(universe[0])]:
+            if universe[(pos[0] + i[0]) % len(universe)]\
+                       [(pos[1] + i[1]) % len(universe[0])]:
                 count += 1
         return count
